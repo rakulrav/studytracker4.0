@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyOS · rr.miles · Sun 07 Jun</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#030308;color:#e2f0ff;font-family:'JetBrains Mono',monospace;font-size:11px;min-height:100vh;overflow-x:hidden}
+:root{--c:#00d4ff;--g:#00ff88;--r:#ff3355;--p:#7b3fe4;--o:#ff9f43;--dim:#6b7c93;--card:rgba(0,8,18,0.85)}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2)}
+.scan{pointer-events:none;position:fixed;inset:0;z-index:9998;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,0.008) 2px,rgba(0,212,255,0.008) 4px)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+@keyframes fadeup{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
+.blink{animation:blink 2.5s ease-in-out infinite}
+.fadein{animation:fadeup .2s ease forwards}
+.shimmer{animation:shimmer 3s ease-in-out infinite}
+.neon{text-shadow:0 0 12px currentColor}
+
+/* YESTERDAY RIBBON */
+.yesterday-bar{
+  background:linear-gradient(90deg,rgba(123,63,228,0.15),rgba(0,212,255,0.1),rgba(123,63,228,0.15));
+  border-bottom:1px solid rgba(123,63,228,0.3);
+  padding:7px 20px;display:flex;align-items:center;justify-content:space-between;
+}
+.yb-label{font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:.2em;color:var(--p)}
+.yb-date{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:#e2f0ff;letter-spacing:.1em}
+.yb-note{font-size:8px;color:var(--dim);letter-spacing:.08em}
+
+header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:44px;padding:0 18px;background:rgba(1,3,10,0.97);border-bottom:1px solid rgba(0,212,255,0.08)}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-orb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--c),#001833);box-shadow:0 0 12px rgba(0,212,255,0.45);display:flex;align-items:center;justify-content:center;font-size:13px}
+.logo-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:var(--c);letter-spacing:.15em}
+.logo-ver{font-size:7px;color:rgba(0,212,255,0.4);border:1px solid rgba(0,212,255,0.15);padding:2px 5px}
+.hclock{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--dim);letter-spacing:.1em}
+.hstatus{display:flex;align-items:center;gap:12px}
+.hsi{display:flex;align-items:center;gap:5px}
+.hsdot{width:5px;height:5px;border-radius:50%}
+.hslbl{font-family:'Orbitron',sans-serif;font-size:7px;letter-spacing:.08em}
+
+.grid{display:grid;grid-template-columns:285px 1fr 272px;gap:10px;padding:12px 14px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px}
+
+.card{background:var(--card);border-radius:3px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px}
+.cc::before{background:linear-gradient(90deg,transparent,rgba(0,212,255,0.5),transparent)}
+.cg::before{background:linear-gradient(90deg,transparent,rgba(0,255,136,0.5),transparent)}
+.cr::before{background:linear-gradient(90deg,transparent,rgba(255,51,85,0.5),transparent)}
+.cp::before{background:linear-gradient(90deg,transparent,rgba(123,63,228,0.5),transparent)}
+.co::before{background:linear-gradient(90deg,transparent,rgba(255,159,67,0.5),transparent)}
+.cd::before{background:linear-gradient(90deg,transparent,rgba(107,124,147,0.35),transparent)}
+.p14{padding:14px}.p10{padding:10px}
+
+.st{display:flex;align-items:center;gap:6px}
+.st-arr{font-size:6px;line-height:1}
+.st-lbl{font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+.rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.badge{font-size:7px;padding:2px 6px;letter-spacing:.08em;border-radius:1px}
+
+.btrack{border-radius:2px;overflow:hidden}
+.bfill{height:100%;border-radius:2px;transition:width 1.3s cubic-bezier(.4,0,.2,1)}
+
+.sgrid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sbox{padding:7px 9px;border-radius:2px}
+.slbl{font-size:6px;letter-spacing:.1em;color:var(--dim);margin-bottom:3px}
+.sval{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700}
+
+.cbtn{background:transparent;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:opacity .15s;padding:3px 9px}
+.cbtn:hover{opacity:.7}
+.ci{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.12);color:#c8d6e5;font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 9px;outline:none;border-radius:2px;transition:border-color .15s;width:100%}
+.ci:focus{border-color:rgba(0,212,255,0.4)}
+.ci::placeholder{color:rgba(100,150,180,0.3)}
+textarea.ci{resize:none}
+
+/* subjects */
+.sr{margin-bottom:11px}
+.sm{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.sn{display:flex;align-items:center;gap:6px;font-size:9px}
+.stime{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700}
+
+/* ranking */
+.rnums{display:flex;justify-content:space-around;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(0,212,255,0.07)}
+.rbox{text-align:center}
+.rlbl{font-size:6px;letter-spacing:.12em;color:var(--dim);margin-bottom:5px}
+.rnum{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900}
+.rsub{font-size:6px;color:var(--dim);margin-top:2px}
+.nbrow{display:flex;justify-content:space-between;align-items:center;padding:4px 0 4px 7px;border-radius:2px}
+.nbme{background:rgba(0,212,255,0.07);border-left:2px solid var(--c)}
+.nbother{border-left:2px solid transparent;transition:background .15s}
+.nbother:hover{background:rgba(0,212,255,0.03)}
+.tbox{margin-top:10px;padding:7px 9px;background:rgba(123,63,228,0.08);border:1px solid rgba(123,63,228,0.22);font-size:8px;color:#b084f5;line-height:1.6;border-radius:2px}
+
+/* group */
+.grow{display:flex;align-items:center;padding:4px 0 4px 7px;border-radius:2px}
+.gme{background:rgba(0,212,255,0.07);border-left:2px solid var(--c)}
+.gother{border-left:2px solid transparent;transition:background .15s}
+.gother:hover{background:rgba(0,255,136,0.03)}
+.gscroll{max-height:188px;overflow-y:auto}
+
+/* todos */
+.trow{display:flex;align-items:center;gap:7px;padding:3px 5px;border-radius:2px;transition:background .15s}
+.trow:hover{background:rgba(0,212,255,0.04)}
+.trow:hover .tdel{opacity:1}
+input[type=checkbox]{accent-color:var(--c);cursor:pointer;flex-shrink:0}
+.ttag{font-size:6px;padding:1px 4px;letter-spacing:.08em;border-radius:2px;flex-shrink:0}
+.tdel{background:none;border:none;cursor:pointer;color:var(--r);font-size:11px;padding:0 2px;opacity:0;transition:opacity .15s;line-height:1;flex-shrink:0}
+.tempty{text-align:center;padding:14px 0;color:var(--dim);font-size:9px;border:1px dashed rgba(0,212,255,0.08);border-radius:2px}
+
+/* log */
+.larea{height:86px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.lline{font-size:7px;line-height:1.7}
+
+/* workout */
+.wfgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.wcard{padding:8px 10px;display:flex;justify-content:space-between;align-items:center;border-radius:2px;margin-bottom:6px}
+.wint{font-size:6px;letter-spacing:.1em;padding:2px 5px;border-radius:2px}
+.wempty{text-align:center;padding:18px 0;border:1px dashed rgba(0,255,136,0.08);color:var(--dim);font-size:9px;border-radius:2px}
+
+/* goal input */
+.goal-inp{width:46px;text-align:center;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--c);padding:3px 4px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:2px;outline:none}
+.goal-inp:focus{border-color:rgba(0,212,255,0.5)}
+
+/* reflection box */
+.reflect-box{background:rgba(123,63,228,0.05);border:1px solid rgba(123,63,228,0.18);border-radius:2px;padding:9px 11px;margin-bottom:10px}
+.reflect-title{font-size:7px;color:var(--p);letter-spacing:.15em;margin-bottom:6px}
+.reflect-stat{display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid rgba(123,63,228,0.08)}
+.reflect-stat:last-child{border:none}
+.reflect-key{font-size:8px;color:var(--dim)}
+.reflect-val{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+
+<!-- YESTERDAY RIBBON -->
+<div class="yesterday-bar">
+  <div>
+    <div class="yb-label shimmer">◀ YESTERDAY'S RECAP</div>
+    <div class="yb-date">SUNDAY, 07 JUNE 2026</div>
+  </div>
+  <div style="text-align:center">
+    <div style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:var(--g)" class="neon">14h 0m</div>
+    <div style="font-size:7px;color:var(--dim);letter-spacing:.1em;margin-top:2px">TOTAL STUDIED</div>
+  </div>
+  <div style="text-align:right">
+    <div class="yb-note">Generated · Mon 08 Jun · 11:32 CET</div>
+    <div class="yb-note" style="color:rgba(0,212,255,0.5);margin-top:3px">Data is final & complete ✓</div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-orb">⚡</div>
+    <span class="logo-name">STUDY<span style="color:var(--dim)">OS</span></span>
+    <span class="logo-ver">v3.2</span>
+  </div>
+  <div class="hclock" id="hclock"></div>
+  <div class="hstatus">
+    <div class="hsi"><div class="hsdot blink" style="background:var(--g)"></div><span class="hslbl" style="color:var(--g)">YPT · 07 JUN · FINAL</span></div>
+    <div class="hsi"><div class="hsdot blink" style="background:var(--p)"></div><span class="hslbl" style="color:var(--p)">REFLECTION MODE</span></div>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- ══ LEFT ══ -->
+  <div class="col">
+
+    <!-- YESTERDAY'S PERFORMANCE -->
+    <div class="card cc p14">
+      <div class="rh">
+        <div class="st"><span class="st-arr" style="color:var(--c)">▶</span><span class="st-lbl" style="color:var(--c)">Yesterday's Performance</span></div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="font-size:7px;color:var(--dim)">GOAL</span>
+          <input class="goal-inp" type="number" id="goal-inp" min="1" max="24" value="8">
+          <span style="font-size:7px;color:var(--dim)">h</span>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:14px">
+        <div class="neon" style="font-family:'Orbitron',sans-serif;font-size:40px;font-weight:900;line-height:1;color:var(--g)">14h 0m</div>
+        <div style="font-size:7px;color:var(--dim);margin-top:4px;letter-spacing:.12em">TOTAL STUDY TIME · SUN 07 JUN</div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:7px;color:var(--dim);letter-spacing:.1em" id="goal-label">DAILY GOAL · 8h</span>
+          <span style="font-size:7px;color:var(--g)" id="goal-pct">175% — GOAL CRUSHED ✓</span>
+        </div>
+        <div class="btrack" style="background:rgba(0,212,255,0.07);height:5px">
+          <div class="bfill" id="goal-bar" style="width:100%;height:5px;background:linear-gradient(90deg,var(--c),var(--g));box-shadow:0 0 8px rgba(0,255,136,0.4)"></div>
+        </div>
+      </div>
+      <div class="sgrid2">
+        <div class="sbox" style="background:rgba(255,159,67,0.08);border:1px solid rgba(255,159,67,0.18)">
+          <div class="slbl">BREAK TIME</div><div class="sval neon" style="color:var(--o)">38m</div>
+        </div>
+        <div class="sbox" style="background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.18)">
+          <div class="slbl">SUBJECTS ACTIVE</div><div class="sval neon" style="color:var(--g)">4 / 7</div>
+        </div>
+        <div class="sbox" style="background:rgba(123,63,228,0.08);border:1px solid rgba(123,63,228,0.18)">
+          <div class="slbl">BEST FOCUS BLOCK</div><div class="sval neon" style="color:var(--p)">4h 11m</div>
+        </div>
+        <div class="sbox" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.18)">
+          <div class="slbl">GROUP RANK</div><div class="sval neon" style="color:var(--c)">#1 / 50</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFLECTION NOTES -->
+    <div class="card cr p14">
+      <div class="rh">
+        <div class="st"><span class="st-arr" style="color:var(--r)">▶</span><span class="st-lbl" style="color:var(--r)">Reflection & Mistakes</span></div>
+        <span id="mistake-count" style="font-size:7px;color:var(--dim)">0 entries</span>
+      </div>
+      <div style="font-size:8px;color:var(--dim);margin-bottom:6px;line-height:1.5">What went wrong? What would you do differently today?</div>
+      <textarea class="ci" id="mistakes" rows="6" placeholder="— Mistakes made&#10;— Gaps in understanding&#10;— What to fix today" style="background:rgba(255,51,85,0.04);border-color:rgba(255,51,85,0.15);line-height:1.8"></textarea>
+    </div>
+
+    <!-- SYSTEM LOG -->
+    <div class="card cd p10">
+      <div style="margin-bottom:7px"><div class="st"><span class="st-arr" style="color:var(--dim)">▶</span><span class="st-lbl" style="color:var(--dim)">System Log</span></div></div>
+      <div class="larea" id="log-area"></div>
+    </div>
+
+  </div>
+
+  <!-- ══ MIDDLE ══ -->
+  <div class="col">
+
+    <!-- SUBJECT BREAKDOWN -->
+    <div class="card cc p14">
+      <div class="rh">
+        <div class="st"><span class="st-arr" style="color:var(--c)">▶</span><span class="st-lbl" style="color:var(--c)">Subject Breakdown</span></div>
+        <span class="badge" style="color:var(--p);border:1px solid rgba(123,63,228,0.3)">SUN 07 JUN · FINAL</span>
+      </div>
+      <div id="subjects"></div>
+      <div style="margin-top:12px;padding-top:11px;border-top:1px solid rgba(0,212,255,0.07);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:7px;color:var(--dim);letter-spacing:.1em">DAY TOTAL</span>
+        <span class="neon" style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:var(--g)">14h 0m</span>
+      </div>
+    </div>
+
+    <!-- WORKOUT LOG -->
+    <div class="card cg p14">
+      <div class="rh">
+        <div class="st"><span class="st-arr" style="color:var(--g)">▶</span><span class="st-lbl" style="color:var(--g)">Workout Log</span></div>
+        <button class="cbtn" id="wform-toggle" style="border:1px solid rgba(0,255,136,0.35);color:var(--g)" onclick="toggleWForm()">+ LOG SESSION</button>
+      </div>
+      <div id="wform-wrap" style="display:none">
+        <div style="background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.15);padding:9px;border-radius:2px;margin-bottom:10px">
+          <div class="wfgrid">
+            <input class="ci" id="w-name" placeholder="Exercise name">
+            <select class="ci" id="w-muscle" style="background:rgba(0,212,255,0.04)">
+              <option>Chest</option><option>Back</option><option>Legs</option><option>Shoulders</option><option>Arms</option><option>Core</option><option>Full Body</option><option>Cardio</option>
+            </select>
+            <input class="ci" type="number" id="w-dur" placeholder="Duration (min)">
+            <select class="ci" id="w-intensity" style="background:rgba(0,212,255,0.04)">
+              <option>Light</option><option selected>Moderate</option><option>Heavy</option><option>Max</option>
+            </select>
+          </div>
+          <input class="ci" id="w-notes" placeholder="Notes (optional)" style="margin-bottom:7px">
+          <button class="cbtn" onclick="logWorkout()" style="width:100%;border:1px solid rgba(0,255,136,0.4);color:var(--g);padding:6px">COMMIT SESSION →</button>
+        </div>
+      </div>
+      <div id="workout-list">
+        <div class="wempty">NO SESSIONS LOGGED<br><span style="font-size:8px;opacity:.4">Hit + LOG SESSION to start</span></div>
+      </div>
+    </div>
+
+    <!-- TODAY'S TO-DO (planning for today) -->
+    <div class="card cc p14">
+      <div class="rh">
+        <div class="st"><span class="st-arr" style="color:var(--c)">▶</span><span class="st-lbl" style="color:var(--c)">Today's Plan</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="badge" style="color:var(--o);border:1px solid rgba(255,159,67,0.3)">MON 08 JUN</span>
+          <span id="todo-count" style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--c)">0/0</span>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div class="btrack" style="background:rgba(0,212,255,0.07);height:2px">
+          <div class="bfill" id="todo-bar" style="width:0%;height:2px"></div>
+        </div>
+      </div>
+      <div id="todo-list"></div>
+      <div style="display:flex;gap:5px;margin-top:8px">
+        <input class="ci" id="new-todo" placeholder="Add task for today..." style="flex:1" onkeydown="if(event.key==='Enter')addTodo()">
+        <button class="cbtn" onclick="addTodo()" style="border:1px solid rgba(0,212,255,0.35);color:var(--c);padding:5px 10px;white-space:nowrap">+ ADD</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ RIGHT ══ -->
+  <div class="col">
+
+    <!-- RANKING BRIEFING -->
+    <div class="card cp p14">
+      <div class="rh">
+        <div class="st"><span class="st-arr" style="color:var(--p)">▶</span><span class="st-lbl" style="color:var(--p)">Ranking Briefing</span></div>
+        <span style="font-size:7px;color:var(--dim)">Sun 07 Jun · final</span>
+      </div>
+      <!-- Individual rank note -->
+      <div style="background:rgba(123,63,228,0.07);border:1px solid rgba(123,63,228,0.18);border-radius:2px;padding:8px 10px;margin-bottom:12px;font-size:8px;color:var(--dim);line-height:1.6">
+        <span style="color:var(--p)">ⓘ</span> YPT doesn't expose individual ranks for past days — only today's leaderboard is live. Your study time: <span style="color:var(--g);font-family:'Orbitron',sans-serif">840m</span>
+      </div>
+      <div class="rnums">
+        <div class="rbox">
+          <div class="rlbl">GLOBAL RANK</div>
+          <div class="rnum neon" style="color:var(--p);font-size:16px;padding-top:4px">N/A</div>
+          <div class="rsub" style="color:rgba(107,124,147,0.6)">past days unavailable</div>
+        </div>
+        <div style="width:1px;background:rgba(0,212,255,0.08)"></div>
+        <div class="rbox">
+          <div class="rlbl">UNIV RANK</div>
+          <div class="rnum neon" style="color:var(--c);font-size:16px;padding-top:4px">N/A</div>
+          <div class="rsub" style="color:rgba(107,124,147,0.6)">past days unavailable</div>
+        </div>
+      </div>
+      <!-- Top rankers that day -->
+      <div style="font-size:7px;color:var(--dim);letter-spacing:.1em;margin-bottom:7px">TOP GLOBAL · SUN 07 JUN</div>
+      <div class="nbrow nbother" style="margin-bottom:1px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="font-family:'Orbitron',sans-serif;font-size:7px;color:var(--o);min-width:22px">#1</span>
+          <span style="font-size:9px;color:#e2f0ff">Abu Talha (sneho)</span>
+        </div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--dim)">347m</span>
+      </div>
+      <div class="nbrow nbother" style="margin-bottom:1px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="font-family:'Orbitron',sans-serif;font-size:7px;color:var(--dim);min-width:22px">#2</span>
+          <span style="font-size:9px;color:var(--dim)">Disciplined Freak🤡</span>
+        </div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--dim)">308m</span>
+      </div>
+      <div class="nbrow nbother" style="margin-bottom:1px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="font-family:'Orbitron',sans-serif;font-size:7px;color:var(--dim);min-width:22px">#3</span>
+          <span style="font-size:9px;color:var(--dim)">🔥Radhekrishna🫀</span>
+        </div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--dim)">293m</span>
+      </div>
+      <div class="nbrow nbme" style="margin-top:4px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="font-family:'Orbitron',sans-serif;font-size:7px;color:var(--c);min-width:22px">YOU</span>
+          <span style="font-size:9px;color:#e2f0ff;font-weight:700">rr.miles</span>
+          <span style="font-size:6px;color:var(--c)">◀ 840m</span>
+        </div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:8px;color:var(--g)">🏆 #1 in group</span>
+      </div>
+      <div class="tbox">💡 840m puts you well above the top 3 global that day — you would've ranked very high</div>
+    </div>
+
+    <!-- TEAM POLYMATH -->
+    <div class="card co p14">
+      <div class="rh" style="margin-bottom:10px">
+        <div class="st"><span class="st-arr" style="color:var(--o)">▶</span><span class="st-lbl" style="color:var(--o)">team polymath 🦸‍♂️</span></div>
+        <span style="font-size:7px;color:var(--dim)">50 members · owner</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">
+        <div class="sbox" style="background:rgba(255,159,67,0.06);border:1px solid rgba(255,159,67,0.15);padding:6px 7px">
+          <div class="slbl">YOUR RANK</div>
+          <div class="sval neon" style="color:var(--o);font-size:13px">#1</div>
+        </div>
+        <div class="sbox" style="background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.15);padding:6px 7px">
+          <div class="slbl">GRP GLOBAL</div>
+          <div class="sval neon" style="color:var(--g);font-size:11px">#1 🌍</div>
+        </div>
+        <div class="sbox" style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);padding:6px 7px">
+          <div class="slbl">ACTIVE</div>
+          <div class="sval neon" style="color:var(--c);font-size:13px">18</div>
+        </div>
+        <div class="sbox" style="background:rgba(123,63,228,0.06);border:1px solid rgba(123,63,228,0.15);padding:6px 7px">
+          <div class="slbl">MEMBERS</div>
+          <div class="sval neon" style="color:var(--p);font-size:13px">50</div>
+        </div>
+      </div>
+      <div style="font-size:7px;color:var(--dim);letter-spacing:.1em;margin-bottom:6px">FINAL STANDINGS · SUN 07 JUN</div>
+      <div class="gscroll" id="group-board"></div>
+      <div style="margin-top:8px;padding:6px 8px;background:rgba(255,159,67,0.05);border:1px solid rgba(255,159,67,0.12);border-radius:2px;font-size:7px;color:var(--dim);line-height:1.7">
+        <div>🪑 Bottom 6–7 monthly → removed at month end</div>
+        <div>🏆 Mission: Stay #1 globally</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CYAN='#00d4ff',GREEN='#00ff88',RED='#ff3355',PURPLE='#7b3fe4',ORANGE='#ff9f43',DIM='#6b7c93',TEXT='#e2f0ff';
+const INT_C={Light:GREEN,Moderate:'#ffbe00',Heavy:ORANGE,Max:RED};
+const TAG_C={STUDY:CYAN,GYM:GREEN,YPT:PURPLE,CUSTOM:ORANGE};
+const SUBJ_I={'Physics':'⚡','Analysis':'📐','Comp':'💻','Mechanics':'⚙️','Linear':'🔢','Mach':'🔧','Gym':'🏋️'};
+
+// ─── BAKED DATA · YESTERDAY SUN 07 JUN 2026 ───
+const YESTERDAY = {
+  date_label: 'Sunday, 07 June 2026',
+  study: {
+    total_study_minutes: 840,
+    total_break_minutes: 38,
+    best_focus_minutes: 251,
+    subjects: [
+      {subject:'Mechanics II',study_minutes:360},
+      {subject:'Physics',study_minutes:360},
+      {subject:'Gym',study_minutes:90},
+      {subject:'Analysis II',study_minutes:30},
+      {subject:'Linear Algebra II',study_minutes:0},
+      {subject:'Mach Design',study_minutes:0},
+      {subject:'Comp Sci II',study_minutes:0}
+    ]
+  },
+  group: {
+    my_rank: 1,
+    active_count: 18,
+    members: [
+      {rank:1,name:'rr.miles',study_minutes:840,is_me:true},
+      {rank:2,name:'Abbas👑🇮🇶',study_minutes:789,is_me:false},
+      {rank:3,name:'alex.b',study_minutes:633,is_me:false},
+      {rank:4,name:'KD_LazeR⚡️',study_minutes:544,is_me:false},
+      {rank:5,name:'Elena~✨',study_minutes:494,is_me:false},
+      {rank:6,name:'ASMMM6',study_minutes:474,is_me:false},
+      {rank:7,name:'Sara (◕ᴗ◕✿)',study_minutes:441,is_me:false},
+      {rank:8,name:'pudding! 🍮',study_minutes:380,is_me:false},
+      {rank:9,name:'Arabella',study_minutes:361,is_me:false},
+      {rank:10,name:'Rinojka',study_minutes:297,is_me:false},
+      {rank:11,name:'Dwg',study_minutes:225,is_me:false},
+      {rank:12,name:'Maister',study_minutes:221,is_me:false},
+      {rank:13,name:'H-elixer',study_minutes:159,is_me:false},
+      {rank:14,name:'Noctsolis',study_minutes:128,is_me:false},
+      {rank:15,name:'leonard 🛸',study_minutes:101,is_me:false},
+      {rank:16,name:'Hell_Elmo',study_minutes:50,is_me:false},
+      {rank:17,name:'Ramo65',study_minutes:23,is_me:false},
+      {rank:18,name:'inorob',study_minutes:18,is_me:false},
+      {rank:19,name:'RiverXY',study_minutes:0,is_me:false},
+      {rank:20,name:'raylo ✧*。',study_minutes:0,is_me:false},
+      {rank:21,name:'puffferdish',study_minutes:0,is_me:false},
+      {rank:22,name:'hackingkitty',study_minutes:0,is_me:false},
+      {rank:23,name:'khushal26',study_minutes:0,is_me:false},
+      {rank:24,name:'islam amara',study_minutes:0,is_me:false},
+      {rank:25,name:'aurorea',study_minutes:0,is_me:false},
+      {rank:26,name:'ayqlo 🪼',study_minutes:0,is_me:false},
+      {rank:27,name:'stormble55d',study_minutes:0,is_me:false},
+      {rank:28,name:'Westicle',study_minutes:0,is_me:false},
+      {rank:29,name:'Panda',study_minutes:0,is_me:false},
+      {rank:30,name:'arman',study_minutes:0,is_me:false},
+      {rank:31,name:'Aayu',study_minutes:0,is_me:false},
+      {rank:32,name:'Kath.m1',study_minutes:0,is_me:false},
+      {rank:33,name:'tmeth',study_minutes:0,is_me:false},
+      {rank:34,name:'specter',study_minutes:0,is_me:false},
+      {rank:35,name:'anishuu',study_minutes:0,is_me:false},
+      {rank:36,name:'Slytherrr',study_minutes:0,is_me:false},
+      {rank:37,name:'luna ᶻ𝗓𐰁',study_minutes:0,is_me:false},
+      {rank:38,name:'king abril',study_minutes:0,is_me:false},
+      {rank:39,name:'Juan Jr.',study_minutes:0,is_me:false},
+      {rank:40,name:'TrulyVagabond',study_minutes:0,is_me:false},
+      {rank:41,name:'vabtv',study_minutes:0,is_me:false},
+      {rank:42,name:'🌱marou',study_minutes:0,is_me:false},
+      {rank:43,name:'💖Mira🎀',study_minutes:0,is_me:false},
+      {rank:44,name:'keep going.',study_minutes:0,is_me:false},
+      {rank:45,name:'riccardosalvi',study_minutes:0,is_me:false},
+      {rank:46,name:'User 1865 79',study_minutes:0,is_me:false},
+      {rank:47,name:'OSIRR',study_minutes:0,is_me:false},
+      {rank:48,name:'Sabuha',study_minutes:0,is_me:false},
+      {rank:49,name:'nabi.soo',study_minutes:0,is_me:false},
+      {rank:50,name:'Dohatyy',study_minutes:0,is_me:false}
+    ]
+  }
+};
+
+// ─── DAILY RESET 05:00 CET ───
+function getDaystamp(){
+  const cet=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Berlin'}));
+  if(cet.getHours()<5)cet.setDate(cet.getDate()-1);
+  return`${cet.getFullYear()}-${String(cet.getMonth()+1).padStart(2,'0')}-${String(cet.getDate()).padStart(2,'0')}`;
+}
+function loadState(){
+  const stamp=getDaystamp();
+  try{const s=JSON.parse(localStorage.getItem('studyos_v32')||'{}');if(s.stamp===stamp)return s;}catch(e){}
+  return{stamp,todos:[],workouts:[],mistakes:'',goalHours:8};
+}
+function saveState(){
+  try{localStorage.setItem('studyos_v32',JSON.stringify({
+    stamp:getDaystamp(),todos:state.todos,workouts:state.workouts,
+    mistakes:document.getElementById('mistakes').value,
+    goalHours:Number(document.getElementById('goal-inp').value)||8
+  }));}catch(e){}
+}
+const state=loadState();
+let logs=[];
+
+function pushLog(msg){
+  const t=new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  logs=[...logs.slice(-50),{ts:t,msg}];
+  const el=document.getElementById('log-area');
+  el.innerHTML=logs.map(l=>{
+    const c=l.msg.startsWith('✓')?GREEN:l.msg.startsWith('✗')?RED:l.msg.startsWith('⚠')?ORANGE:DIM;
+    return`<div class="lline fadein" style="color:${c}">[${l.ts}] ${l.msg}</div>`;
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function fmtMin(m){
+  if(!m)return m===0?'0m':'--';
+  const h=Math.floor(m/60),r=m%60;
+  return h>0?`${h}h ${r}m`:`${r}m`;
+}
+function subjIcon(s){for(const k in SUBJ_I)if(s.includes(k))return SUBJ_I[k];return'📚';}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setBar(id,pct,color){
+  setTimeout(()=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.style.width=Math.min(pct,100)+'%';
+    el.style.background=`linear-gradient(90deg,${color},${color===CYAN?GREEN:color})`;
+    el.style.boxShadow=pct>0?`0 0 7px ${color}55`:'none';
+  },80);
+}
+
+// ─── GOAL ───
+function getGoalMins(){return(Number(document.getElementById('goal-inp').value)||8)*60;}
+function updateGoal(){
+  const total=YESTERDAY.study.total_study_minutes,g=getGoalMins();
+  const pct=Math.min((total/g)*100,100),gc=pct>=100?GREEN:CYAN;
+  const h=Math.round(g/60);
+  document.getElementById('goal-label').textContent=`DAILY GOAL · ${h}h`;
+  const pctRound=Math.round((total/g)*100);
+  document.getElementById('goal-pct').textContent=pct>=100?`${pctRound}% — GOAL CRUSHED ✓`:`${pctRound}% COMPLETE`;
+  document.getElementById('goal-pct').style.color=gc;
+  setBar('goal-bar',pct,gc);
+}
+document.getElementById('goal-inp').addEventListener('change',function(){saveState();updateGoal();pushLog(`✓ Goal set to ${this.value}h`);});
+if(state.goalHours)document.getElementById('goal-inp').value=state.goalHours;
+
+// ─── SUBJECTS ───
+function renderSubjects(){
+  const subs=YESTERDAY.study.subjects;
+  const maxMin=Math.max(...subs.map(x=>x.study_minutes),1);
+  document.getElementById('subjects').innerHTML=subs.map(x=>{
+    const act=x.study_minutes>0;
+    const sid='b-'+x.subject.replace(/[^a-zA-Z0-9]/g,'');
+    const pctTxt=act?` · ${Math.round((x.study_minutes/YESTERDAY.study.total_study_minutes)*100)}%`:'';
+    return`<div class="sr">
+      <div class="sm">
+        <div class="sn"><span style="font-size:12px">${subjIcon(x.subject)}</span><span style="color:${act?TEXT:DIM}">${esc(x.subject.trim())}</span><span style="font-size:7px;color:${act?'rgba(0,212,255,0.5)':DIM}">${pctTxt}</span></div>
+        <span class="stime" style="color:${act?GREEN:DIM}">${fmtMin(x.study_minutes)}</span>
+      </div>
+      <div class="btrack" style="background:rgba(0,212,255,0.07);height:3px">
+        <div class="bfill" id="${sid}" style="width:0%;height:3px;background:${act?GREEN:'rgba(0,212,255,0.08)'}"></div>
+      </div></div>`;
+  }).join('');
+  setTimeout(()=>{
+    subs.forEach(x=>{
+      const pct=(x.study_minutes/maxMin)*100;
+      const el=document.getElementById('b-'+x.subject.replace(/[^a-zA-Z0-9]/g,''));
+      if(el){el.style.width=Math.min(pct,100)+'%';if(x.study_minutes>0)el.style.boxShadow=`0 0 5px ${GREEN}55`;}
+    });
+  },150);
+}
+
+// ─── GROUP BOARD ───
+function renderGroup(){
+  const members=YESTERDAY.group.members;
+  const active=members.filter(m=>m.study_minutes>0);
+  const inactive=members.filter(m=>m.study_minutes===0);
+  const maxMin=Math.max(...active.map(m=>m.study_minutes),1);
+  let html=active.map(m=>`
+    <div class="grow ${m.is_me?'gme':'gother'}">
+      <span style="font-family:'Orbitron',sans-serif;font-size:7px;min-width:22px;flex-shrink:0;color:${m.is_me?CYAN:DIM}">#${m.rank}</span>
+      <span style="font-size:8px;color:${m.is_me?TEXT:DIM};font-weight:${m.is_me?700:400};flex-shrink:0;width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:6px">${esc(m.name)}</span>
+      <div style="flex:1;margin-right:6px">
+        <div class="btrack" style="background:rgba(0,212,255,0.06);height:2px">
+          <div style="height:2px;border-radius:2px;width:${Math.round((m.study_minutes/maxMin)*100)}%;background:${m.is_me?GREEN:'rgba(0,212,255,0.3)'};transition:width .9s ease"></div>
+        </div>
+      </div>
+      <span style="font-family:'Orbitron',sans-serif;font-size:7px;color:${m.is_me?GREEN:DIM};white-space:nowrap;flex-shrink:0">${fmtMin(m.study_minutes)}</span>
+    </div>`).join('');
+  if(inactive.length)
+    html+=`<div style="font-size:6px;color:rgba(107,124,147,0.4);letter-spacing:.1em;padding:5px 7px 2px">${inactive.length} MEMBERS DID NOT STUDY</div>`;
+  document.getElementById('group-board').innerHTML=html;
+}
+
+// ─── TODOS ───
+function renderTodos(){
+  const todos=state.todos,done=todos.filter(t=>t.done).length;
+  const allDone=done===todos.length&&todos.length>0;
+  document.getElementById('todo-count').textContent=`${done}/${todos.length}`;
+  document.getElementById('todo-count').style.color=allDone?GREEN:CYAN;
+  setBar('todo-bar',todos.length?(done/todos.length)*100:0,allDone?GREEN:CYAN);
+  document.getElementById('todo-list').innerHTML=todos.length===0
+    ?'<div class="tempty">Plan your day — add tasks below</div>'
+    :todos.map(t=>`
+      <div class="trow">
+        <input type="checkbox"${t.done?' checked':''} onchange="toggleTodo(${t.id})">
+        <span style="flex:1;font-size:9px;color:${t.done?DIM:TEXT};text-decoration:${t.done?'line-through':'none'};opacity:${t.done?.5:1};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:all .2s">${esc(t.text)}</span>
+        <span class="ttag" style="color:${TAG_C[t.tag]||CYAN};border:1px solid ${TAG_C[t.tag]||CYAN}33">${t.tag}</span>
+        <button class="tdel" onclick="deleteTodo(${t.id})">✕</button>
+      </div>`).join('');
+}
+function toggleTodo(id){state.todos=state.todos.map(t=>t.id===id?{...t,done:!t.done}:t);renderTodos();saveState();}
+function deleteTodo(id){state.todos=state.todos.filter(t=>t.id!==id);renderTodos();saveState();pushLog('✓ Task removed');}
+function addTodo(){
+  const inp=document.getElementById('new-todo'),txt=inp.value.trim();
+  if(!txt)return;
+  state.todos.push({id:Date.now(),text:txt,done:false,tag:'CUSTOM'});
+  inp.value='';renderTodos();saveState();pushLog(`✓ Task added: ${txt}`);
+}
+
+// ─── WORKOUTS ───
+function renderWorkouts(){
+  const w=state.workouts,el=document.getElementById('workout-list');
+  if(!w.length){el.innerHTML='<div class="wempty">NO SESSIONS LOGGED<br><span style="font-size:8px;opacity:.4">Hit + LOG SESSION to start</span></div>';return;}
+  el.innerHTML=w.map((x,i)=>`
+    <div class="wcard" style="background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.12)">
+      <div>
+        <div style="font-size:10px;color:${TEXT};margin-bottom:2px">${esc(x.name)}</div>
+        <div style="font-size:7px;color:${DIM}">${x.muscle}${x.duration?' · '+x.duration+'min':''}</div>
+        ${x.notes?`<div style="font-size:7px;color:${DIM};margin-top:1px;font-style:italic">${esc(x.notes)}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <span class="wint" style="color:${INT_C[x.intensity]};border:1px solid ${INT_C[x.intensity]}44">${x.intensity.toUpperCase()}</span>
+        <button class="cbtn" onclick="deleteWorkout(${i})" style="font-size:7px;color:var(--r);border:1px solid rgba(255,51,85,0.2);padding:2px 5px">✕</button>
+      </div>
+    </div>`).join('')
+  +`<div style="font-size:7px;color:${DIM};display:flex;justify-content:space-between;margin-top:3px"><span>${w.length} SESSION${w.length!==1?'S':''}</span><span>TARGET: 3–4/WEEK</span></div>`;
+}
+function deleteWorkout(i){state.workouts.splice(i,1);renderWorkouts();saveState();pushLog('✓ Workout removed');}
+function toggleWForm(){
+  const wrap=document.getElementById('wform-wrap'),btn=document.getElementById('wform-toggle');
+  const show=wrap.style.display==='none';
+  wrap.style.display=show?'block':'none';
+  btn.textContent=show?'— CANCEL':'+ LOG SESSION';
+}
+function logWorkout(){
+  const name=document.getElementById('w-name').value.trim();
+  if(!name)return;
+  state.workouts.push({name,muscle:document.getElementById('w-muscle').value,duration:document.getElementById('w-dur').value,intensity:document.getElementById('w-intensity').value,notes:document.getElementById('w-notes').value.trim()});
+  ['w-name','w-dur','w-notes'].forEach(id=>document.getElementById(id).value='');
+  toggleWForm();renderWorkouts();saveState();pushLog(`✓ Workout logged: ${name}`);
+}
+
+// ─── MISTAKES ───
+document.getElementById('mistakes').value=state.mistakes||'';
+(function(){const n=(state.mistakes||'').split('\n').filter(Boolean).length;document.getElementById('mistake-count').textContent=`${n} entr${n===1?'y':'ies'}`;})();
+document.getElementById('mistakes').addEventListener('input',function(){
+  const n=this.value.split('\n').filter(Boolean).length;
+  document.getElementById('mistake-count').textContent=`${n} entr${n===1?'y':'ies'}`;
+  saveState();
+});
+
+// ─── CLOCK CET ───
+function tick(){
+  const cet=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Berlin'}));
+  document.getElementById('hclock').innerHTML=
+    cet.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'})+
+    ' <span style="color:var(--c)">'+cet.toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</span>';
+}
+tick();setInterval(tick,1000);
+
+// ─── BOOT ───
+pushLog('[BOOT] StudyOS v3.2 — REFLECTION MODE');
+pushLog('[DATA] Yesterday: Sun 07 Jun 2026 · final & complete');
+pushLog('[SYS] Daily reset 05:00 CET · stamp: '+getDaystamp());
+renderSubjects();
+renderGroup();
+renderTodos();
+renderWorkouts();
+updateGoal();
+pushLog('✓ 840m studied · #1 in Team Polymath (18 active)');
+pushLog('✓ Subjects: Mechanics II 6h · Physics 6h · Gym 1h30m · Analysis 30m');
+</script>
+</body>
+</html>
